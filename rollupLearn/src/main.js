@@ -1,7 +1,7 @@
-import title from './title'
+import { title, age } from './title'
 import './main.css'
-const test = (title) => {
+function test(title) {
     console.log(title);
-    console.log(111);
-} 
+    // console.log(111);
+}
 test(title) 
