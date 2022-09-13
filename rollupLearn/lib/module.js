@@ -24,7 +24,25 @@ class Module {
 
         // 分析语法树（核心）
         analyse(this.ast, this.code, this);
+    }
 
+    /**
+     * 语法树展开 
+     */
+    expendAllStatements() {
+        let allStatements = [];
+        this.ast.body.forEach(statement => {
+            let statements = this.expendStatement(statement);
+            allStatements.push(...statements)
+        });
+        return allStatements;
+    }
+
+    expendStatement(statement) {
+        statement._included = true; // 打个标，标识当前模块已经被展开过
+        let result = [];
+        result.push(statement);
+        return result;
     }
 }
 

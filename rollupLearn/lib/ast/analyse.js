@@ -46,7 +46,7 @@ function analyse(ast, code, module) {
      * - _dependsOn 当前模块没有定义但是使用到的变量，也就是依赖的外部变量
      */
 
-    let currentScope = new Scope({ name: '顶级作用域' }); // 创建一个 scope 用于便利时构建作用域链
+    let currentScope = new Scope({ name: '顶级作用域' }); // 创建一个 scope 用于遍历时构建作用域链
     ast.body.forEach(statement => {
 
         /**

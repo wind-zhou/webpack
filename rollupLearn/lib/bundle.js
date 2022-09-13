@@ -6,16 +6,18 @@
 const path = require('path');
 const fs = require('fs');
 const Module = require('./module');
+const MagicString = require('magic-string')
 class Bundle {
     constructor(options = {}) {
         this.entryPath = path.resolve(options.entry);
     }
-
     // 
     build(output) {
         const entryModule = this.fetchModule(this.entryPath)
         console.log('module:', entryModule);
-
+        this.statements = entryModule.expendAllStatements();
+        const { code } = this.generate();
+        fs.writeFileSync(output, code)
     }
 
     // 根据路径获取模块
@@ -32,7 +34,21 @@ class Bundle {
             })
             return module;
         }
-
+    }
+    /**
+     * 生成代码
+     */
+    generate() {
+        // 创建一个bundle
+        let bundle = new MagicString.Bundle();
+        this.statements.forEach(statement => {
+            const source = statement._source.clone();
+            bundle.addSource({
+                content: source,
+                separator: '\n'
+            });
+        })
+        return { code: bundle.toString() }
     }
 }
 
