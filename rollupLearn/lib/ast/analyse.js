@@ -30,7 +30,7 @@ function analyse(ast, code, module) {
             const declaration = statement.declaration;
             if (declaration && declaration.type === 'VariableDeclaration') {
                 const declarations = declaration.declarations;
-                declaration.forEach(variableDeclarator => {
+                declarations.forEach(variableDeclarator => {
                     const localName = variableDeclarator.id.name;
                     const exportName = localName;//age age
                     module.exports[exportName] = { localName }
@@ -63,7 +63,7 @@ function analyse(ast, code, module) {
             if (!currentScope.parent) { // 若不存在父级作用域，则说明是顶级作用域，这个这个变量是顶级变量，需要存一下
                 statement._defines[name] = true;
                 //此顶级变量的定义语句就是这条语句
-                module.definitions[name] = statement;
+                module.definitions[name] = statement; // 定义这个是为了后面展开
             }
         }
 

@@ -9,20 +9,31 @@ const Module = require('./module');
 const MagicString = require('magic-string')
 class Bundle {
     constructor(options = {}) {
-        this.entryPath = path.resolve(options.entry);
+        this.entryPath = path.resolve(options.entry).replace(/\.js$/, '') + '.js';
+        this.modules = new Set(); // 存储模块集合
     }
     // 
     build(output) {
         const entryModule = this.fetchModule(this.entryPath)
-        console.log('module:', entryModule);
+        // console.log('module:', entryModule);
         this.statements = entryModule.expendAllStatements();
         const { code } = this.generate();
         fs.writeFileSync(output, code)
     }
 
     // 根据路径获取模块
-    fetchModule(importee) {
-        const route = importee;
+    fetchModule(importee, importer) {
+        let route;
+        if (!importer) {
+            route = importee;
+        } else {
+            if (path.isAbsolute(importee)) {
+                route = importee.replace(/\.js$/, '') + '.js';
+            } else {
+                route = path.resolve(path.dirname(importer), importee.replace(/\.js$/, '') + '.js');
+            }
+        }
+
         if (route) {
             // 读取文件内容
             const code = fs.readFileSync(route, 'utf-8');
@@ -32,6 +43,8 @@ class Bundle {
                 path: route, // 模块路径
                 bundle: this // Bundle 实例（属于哪个bundle）
             })
+            this.modules.add(module); // 将生成模块存到bundle 的 modules 数组
+            console.log('module:', module);
             return module;
         }
     }
@@ -43,6 +56,9 @@ class Bundle {
         let bundle = new MagicString.Bundle();
         this.statements.forEach(statement => {
             const source = statement._source.clone();
+            if (statement.type === 'ExportNamedDeclaration') {
+                source.remove(statement.start, statement.declaration.start)
+              }
             bundle.addSource({
                 content: source,
                 separator: '\n'

@@ -1,5 +1,5 @@
 import { title, age } from './title'
-import './main.css'
+// import './main.css'
 function test(title) {
     console.log(title);
     // console.log(111);
